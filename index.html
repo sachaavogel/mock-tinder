@@ -7,104 +7,132 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --p: #fe3c72; --s: #ff7854; --bg: #111418; --side: #1e2329; --border: #2f3640; --msg-me: #1786ff; }
-        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: #fff; display: flex; height: 100vh; overflow: hidden; }
+        :root { 
+            --p: #fe3c72; --s: #ff7854; --bg: #111418; --side: #1e2329; 
+            --border: #2f3640; --msg-me: #1786ff; --super: #20c6f5; --txt: #ffffff;
+        }
         
-        /* --- SIDEBAR --- */
+        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--txt); display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- SIDEBAR & DISCOVERY --- */
         .sidebar { width: 375px; background: var(--side); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 50; }
         .sidebar-header { background: linear-gradient(262deg, #ff7854 10%, #fd267a 100%); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; height: 44px; }
-        .user-pill { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; }
         .user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; background-image: url('https://i.pravatar.cc/100?u=me'); background-size: cover; }
         
-        .tab-nav { display: flex; border-bottom: 1px solid var(--border); position: relative; }
+        .tab-nav { display: flex; border-bottom: 1px solid var(--border); }
         .tab { flex: 1; padding: 15px; text-align: center; font-weight: 700; font-size: 13px; cursor: pointer; color: #8c9094; }
         .tab.active { color: #fff; border-bottom: 2px solid var(--p); }
-        .notification-dot { position: absolute; right: 25%; top: 12px; width: 8px; height: 8px; background: var(--p); border-radius: 50%; display: none; }
 
-        .list-area { flex-grow: 1; overflow-y: auto; }
-        .match-item { padding: 12px 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid #252b32; animation: fadeIn 0.4s ease; }
-        .match-thumb { width: 55px; height: 55px; border-radius: 50%; background-size: cover; background-position: center; }
+        .list-area { flex-grow: 1; overflow-y: auto; padding: 15px; }
+        .matches-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .match-card { aspect-ratio: 1/1.3; border-radius: 8px; background-size: cover; background-position: center; cursor: pointer; position: relative; transition: 0.2s; border: 1px solid transparent; }
+        .match-card:hover { border-color: var(--p); }
+        .match-card span { position: absolute; bottom: 5px; left: 8px; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 3px #000; }
 
-        /* --- MAIN VIEW --- */
+        .msg-item { display: flex; align-items: center; gap: 12px; padding: 10px; cursor: pointer; border-radius: 10px; transition: 0.2s; margin-bottom: 5px; }
+        .msg-item:hover { background: #252b32; }
+        .msg-thumb { width: 55px; height: 55px; border-radius: 50%; background-size: cover; background-position: center; }
+
+        /* Settings Style */
+        .settings-box { padding: 20px; background: #181c22; border-top: 1px solid var(--border); font-size: 13px; }
+        .slider-wrap { margin-bottom: 15px; }
+        .slider { width: 100%; accent-color: var(--p); cursor: pointer; }
+
+        /* --- MAIN VIEW & CARDS --- */
         #content { flex-grow: 1; position: relative; display: flex; flex-direction: column; background: #000; align-items: center; justify-content: center; }
         .deck-wrapper { width: 400px; height: 600px; position: relative; }
-        .card { width: 100%; height: 100%; border-radius: 10px; background-size: cover; background-position: center; position: absolute; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-end; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s; overflow: hidden; }
-        .card-overlay { padding: 24px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); pointer-events: none; }
         
-        /* Photo Navigation */
-        .photo-nav { position: absolute; top: 0; width: 50%; height: 85%; z-index: 5; }
-        .photo-left { left: 0; }
-        .photo-right { right: 0; }
-        .photo-dots { position: absolute; top: 10px; width: 100%; display: flex; justify-content: center; gap: 5px; z-index: 10; padding: 0 10px; box-sizing: border-box; }
+        .card { width: 100%; height: 100%; border-radius: 12px; background-size: cover; background-position: center; position: absolute; cursor: pointer; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        .card-overlay { padding: 25px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%); position: absolute; bottom: 0; width: 100%; box-sizing: border-box; pointer-events: none; }
+        
+        /* Nav Areas */
+        .nav-zone { position: absolute; top: 0; height: 85%; z-index: 5; }
+        .nav-left { left: 0; width: 30%; }
+        .nav-info { left: 30%; width: 40%; }
+        .nav-right { right: 0; width: 30%; }
+
+        .dots-row { position: absolute; top: 12px; width: 100%; display: flex; gap: 6px; padding: 0 15px; box-sizing: border-box; z-index: 10; }
         .dot { flex: 1; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; }
         .dot.active { background: #fff; }
 
-        /* BUTTONS (Instructor's XPaths) */
-        .gamepad { display: flex; gap: 12px; align-items: center; margin-top: 20px; z-index: 20; }
-        .circle-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--bg); border: 1px solid; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: transform 0.1s; }
-        .circle-btn:active { transform: scale(0.8); }
-        .btn-nope { border-color: #ec5e6f; color: #ec5e6f; width: 65px; height: 65px; font-size: 28px; }
-        .btn-like { border-color: #2db869; color: #2db869; width: 65px; height: 65px; font-size: 28px; }
+        /* Profile Detail View (Hidden by default) */
+        .bio-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #111; display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; z-index: 100; border-radius: 12px; }
+
+        /* --- BUTTONS --- */
+        .gamepad { display: flex; gap: 15px; align-items: center; margin-top: 25px; z-index: 20; }
+        .circle-btn { width: 54px; height: 54px; border-radius: 50%; background: var(--bg); border: 1px solid; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: 0.1s; color: #fff; }
+        .circle-btn:active { transform: scale(0.85); }
+        .btn-undo { border-color: #f5b900; color: #f5b900; }
+        .btn-nope { border-color: #ec5e6f; color: #ec5e6f; width: 68px; height: 68px; font-size: 28px; }
+        .btn-like { border-color: #2db869; color: #2db869; width: 68px; height: 68px; font-size: 28px; }
+        .btn-super { border-color: var(--super); color: var(--super); }
 
         /* --- CHAT SYSTEM --- */
-        .chat-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 100; display: none; flex-direction: column; }
+        .chat-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 150; display: none; flex-direction: column; }
         .chat-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
-        .chat-body { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 75%; padding: 10px 15px; border-radius: 18px; font-size: 15px; }
-        .bubble.them { background: #333; align-self: flex-start; }
-        .bubble.me { background: var(--msg-me); align-self: flex-end; }
-        .chat-input-area { padding: 20px; display: flex; gap: 10px; border-top: 1px solid var(--border); }
-        .chat-input { flex-grow: 1; background: #252b32; border: none; border-radius: 20px; padding: 12px 20px; color: #fff; outline: none; }
+        .chat-body { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .bubble { max-width: 75%; padding: 10px 16px; border-radius: 20px; font-size: 15px; line-height: 1.4; position: relative; }
+        .bubble.them { background: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .bubble.me { background: var(--msg-me); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .receipt { font-size: 10px; color: #888; text-align: right; margin-top: 4px; }
+        
+        .chat-input-area { padding: 20px; display: flex; gap: 12px; border-top: 1px solid var(--border); background: #111; }
+        .chat-input { flex-grow: 1; background: #252b32; border: none; border-radius: 25px; padding: 12px 20px; color: #fff; outline: none; }
 
-        /* --- MODALS --- */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .modal { background: #fff; color: #111; padding: 40px; border-radius: 16px; width: 340px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        /* --- MODALS (Instructor Targets) --- */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal { background: #fff; color: #111; padding: 45px; border-radius: 16px; width: 350px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         .hidden { display: none !important; }
 
-        /* IT'S A MATCH (Selector: .itsAMatch a) */
-        .itsAMatch { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.96); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        .match-title { font-family: 'Brush Script MT', cursive; font-size: 85px; color: #2db869; transform: rotate(-5deg); margin-bottom: 30px; }
-        .match-avatars { display: flex; margin-bottom: 40px; }
-        .match-avatar { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #fff; background-size: cover; background-position: center; }
-        .match-actions { display: flex; flex-direction: column; gap: 15px; width: 280px; }
-        .match-btn { padding: 16px; border-radius: 30px; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center; border: 2px solid #fff; color: #fff; font-size: 14px; text-transform: uppercase; }
-        .match-btn.primary { background: #fff; color: #111; }
+        /* --- MATCH POPUP --- */
+        .itsAMatch { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.98); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.5s; }
+        .match-title { font-family: 'Brush Script MT', cursive; font-size: 90px; color: #2db869; transform: rotate(-5deg); margin-bottom: 20px; }
+        .match-btn { padding: 16px; border-radius: 35px; font-weight: 700; cursor: pointer; text-decoration: none; border: 2px solid #fff; color: #fff; width: 280px; text-align: center; margin-top: 12px; text-transform: uppercase; letter-spacing: 1px; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="user-pill"><div class="user-avatar"></div><span>My Profile</span></div>
-            <div style="display:flex; gap:16px; opacity:0.8;"><i class="fas fa-shield-alt"></i><i class="fas fa-cog"></i></div>
+            <div style="display:flex; align-items:center; gap:10px;"><div class="user-avatar"></div><b>My Profile</b></div>
+            <i class="fas fa-cog" style="opacity: 0.7; cursor: pointer;"></i>
         </div>
         <div class="tab-nav">
-            <div class="tab active">Matches</div>
-            <div class="tab">Messages <span id="notif-dot" class="notification-dot"></span></div>
+            <div class="tab active" id="tab-matches" onclick="switchTab('matches')">Matches</div>
+            <div class="tab" id="tab-messages" onclick="switchTab('messages')">Messages</div>
         </div>
-        <div class="list-area" id="list-area">
-            <p id="empty-msg" style="text-align:center; color:#555; margin-top:50px; font-size: 14px; padding: 0 20px;">Matches will appear here once you start swiping!</p>
+        <div class="list-area" id="sidebar-content">
+            </div>
+        
+        <div class="settings-box">
+            <div style="font-weight: bold; color: var(--p); margin-bottom: 15px; font-size: 11px; letter-spacing: 1px;">DISCOVERY SETTINGS</div>
+            <div class="slider-wrap">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Distance</span><span id="dist-val">25 mi.</span></div>
+                <input type="range" class="slider" min="1" max="100" value="25" oninput="document.getElementById('dist-val').innerText = this.value + ' mi.'">
+            </div>
+            <div class="slider-wrap">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Age Range</span><span>18 - 35</span></div>
+                <input type="range" class="slider" min="18" max="100" value="35">
+            </div>
         </div>
     </aside>
 
     <main id="content">
-        <div id="cookie-bar" style="position: absolute; width:100%; bottom:0; z-index: 200;">
-            <div style="background: #fff; color: #111; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; box-shadow: 0 -5px 15px rgba(0,0,0,0.2);">
-                <span style="font-size:14px; margin-left:20px; font-weight: 500;">We use cookies to improve your experience.</span>
-                <div style="margin-right:20px;">
-                    <button onclick="document.getElementById('cookie-bar').style.display='none'" style="background: var(--p); color:#fff; border:none; padding:10px 25px; border-radius:5px; font-weight:bold; cursor:pointer;">I ACCEPT</button>
-                </div>
+        <div id="cookie-banner" style="position: absolute; bottom: 0; width: 100%; z-index: 500;">
+            <div style="background: #fff; color: #111; padding: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.3);">
+                <span style="font-size: 14px; font-weight: 500;">This site uses cookies to ensure you get the best experience.</span>
+                <button onclick="document.getElementById('cookie-banner').style.display='none'" style="background: var(--p); color: #fff; border: none; padding: 12px 30px; border-radius: 5px; cursor: pointer; font-weight: bold;">I ACCEPT</button>
             </div>
         </div>
 
         <div class="deck-wrapper" id="deck"></div>
 
         <div class="gamepad">
-            <div class="circle-btn"><i class="fas fa-undo" style="color:#f5b900"></i></div>
+            <button class="circle-btn btn-undo" onclick="rewind()"><i class="fas fa-undo"></i></button>
             <button class="circle-btn btn-nope" onclick="swipe(false)"><i class="fas fa-times"></i></button>
-            <div class="circle-btn"><i class="fas fa-star" style="color:#20c6f5"></i></div>
+            <button class="circle-btn btn-super" onclick="swipe('super')"><i class="fas fa-star"></i></button>
             
             <div class="n1"><div class="n2"><div class="n3">
                 <div class="n4">
@@ -112,219 +140,282 @@
                 </div>
             </div></div></div>
 
-            <div class="circle-btn"><i class="fas fa-bolt" style="color:#a658f5"></i></div>
+            <button class="circle-btn" style="color:#a658f5; border-color:#a658f5;"><i class="fas fa-bolt"></i></button>
         </div>
 
         <div id="chat-ui" class="chat-container">
             <div class="chat-header">
-                <i class="fas fa-chevron-left" onclick="closeChat()" style="cursor:pointer; font-size:20px;"></i>
-                <div id="chat-avatar" style="width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center;"></div>
-                <b id="chat-name">Name</b>
+                <i class="fas fa-chevron-left" onclick="closeChat()" style="cursor:pointer; font-size:22px;"></i>
+                <div id="chat-avatar" class="msg-thumb"></div>
+                <b id="chat-name" style="font-size: 18px;"></b>
             </div>
             <div class="chat-body" id="chat-body"></div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input" class="chat-input" placeholder="Type a message...">
-                <button style="background:none; border:none; color:var(--p); font-weight:bold; cursor:pointer;" onclick="sendMessage()">SEND</button>
+                <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()" style="background:none; border:none; color:var(--p); font-weight:bold; cursor:pointer; font-size: 16px;">SEND</button>
             </div>
         </div>
 
         <div id="match-popup" class="itsAMatch">
             <div class="match-title">It's a Match!</div>
-            <div class="match-avatars">
-                <div class="match-avatar" style="background-image:url('https://i.pravatar.cc/100?u=me')"></div>
-                <div id="match-target" class="match-avatar" style="margin-left:-20px; border-color:#2db869;"></div>
+            <div style="display:flex; gap: 20px; margin: 40px 0;">
+                <div class="msg-thumb" style="width:120px; height:120px; border:4px solid #fff; background-image:url('https://i.pravatar.cc/100?u=me')"></div>
+                <div id="match-target" class="msg-thumb" style="width:120px; height:120px; border:4px solid #2db869;"></div>
             </div>
-            <div class="match-actions">
-                <button class="match-btn primary" onclick="openChatFromMatch()">SEND A MESSAGE</button>
-                <a class="match-btn" onclick="closeMatchPopup()">KEEP SWIPING</a>
-            </div>
+            <button class="match-btn" style="background:#fff; color:#111;" onclick="openChatFromMatch()">SEND MESSAGE</button>
+            <a class="match-btn" onclick="document.getElementById('match-popup').style.display='none'; renderCard();">KEEP SWIPING</a>
         </div>
     </main>
 
-    <div id="modal-manager">
+    <div id="auth-manager">
         <div id="login-screen" class="overlay">
             <div class="modal">
-                <h1 style="color:var(--p); font-style:italic; font-size:48px; margin-bottom:5px; letter-spacing: -2px;">tinder</h1>
-                <p style="font-weight:700; margin-bottom:30px; font-size:14px; color: #444;">Log in to start matching.</p>
-                
+                <h1 style="color:var(--p); font-style:italic; font-size: 55px; margin: 0 0 10px;">tinder</h1>
+                <p style="font-weight:bold; color: #555; margin-bottom: 30px;">By clicking Log In, you agree to our Terms.</p>
                 <div class="n1"><div class="n2"><div class="n3">
                     <span><div style="display:flex;">
-                        <button onclick="openFB()" style="width:100%; background:#1877f2; color:#fff; border:none; padding:15px; border-radius:30px; font-weight:700; cursor:pointer; font-size: 13px;">LOG IN WITH FACEBOOK</button>
+                        <button onclick="openFB()" style="width:100%; background:#1877f2; color:#fff; border:none; padding:16px; border-radius:30px; font-weight:700; cursor:pointer; font-size: 14px;">LOG IN WITH FACEBOOK</button>
                     </div></span>
                 </div></div></div>
-                
-                <button style="width:100%; margin-top:15px; background:none; border:1px solid #ddd; padding:15px; border-radius:30px; color:#555; font-weight:700; font-size: 13px; cursor: pointer;">LOG IN WITH PHONE NUMBER</button>
+                <button style="width:100%; margin-top:15px; background:none; border:1px solid #ccc; padding:16px; border-radius:30px; color:#444; font-weight:700; cursor:pointer;">LOG IN WITH PHONE NUMBER</button>
             </div>
         </div>
 
         <div id="perms-screen" class="overlay hidden">
             <div class="modal">
-                <div id="loc-part">
-                    <i class="fas fa-map-marker-alt" style="font-size:45px; color:var(--p); margin-bottom:20px;"></i>
-                    <h2 style="margin: 0 0 10px;">Enable Location</h2>
-                    <p style="color:#666; font-size:14px; line-height: 1.4;">We need your location to show people near you.</p>
-                    <div style="margin-top:35px;">
-                        <button onclick="nextPermStep()" style="background:var(--p); color:#fff; border:none; padding:15px 60px; border-radius:30px; font-weight:700; cursor:pointer; width: 100%;">ALLOW</button>
-                    </div>
+                <div id="loc-step">
+                    <i class="fas fa-location-arrow" style="font-size:50px; color:var(--p); margin-bottom:20px;"></i>
+                    <h2>Enable Location</h2>
+                    <p style="color:#666; font-size:14px; line-height:1.5;">We use your location to find you the best matches in your area.</p>
+                    <button onclick="document.getElementById('loc-step').classList.add('hidden'); document.getElementById('notif-step').classList.remove('hidden');" style="background:var(--p); color:#fff; border:none; padding:15px 50px; border-radius:30px; cursor:pointer; font-weight:bold; margin-top:25px; width:100%;">ALLOW</button>
                 </div>
-                <div id="notif-part" class="hidden">
-                    <i class="fas fa-bell" style="font-size:45px; color:var(--p); margin-bottom:20px;"></i>
-                    <h2 style="margin: 0 0 10px;">Push Notifications</h2>
-                    <p style="color:#666; font-size:14px; line-height: 1.4;">Get notified when you get a match or a message.</p>
-                    <div style="margin-top:35px; display:flex; flex-direction:column; gap:12px;">
-                        <button style="background:none; border:none; color:#aaa; font-weight:700; cursor:pointer;" onclick="finishAllPerms()">NOT NOW</button>
-                        <button onclick="finishAllPerms()" style="background:var(--p); color:#fff; border:none; padding:15px 60px; border-radius:30px; font-weight:700; cursor:pointer;">ENABLE</button>
-                    </div>
+                <div id="notif-step" class="hidden">
+                    <i class="fas fa-comment-dots" style="font-size:50px; color:var(--p); margin-bottom:20px;"></i>
+                    <h2>Push Notifications</h2>
+                    <p style="color:#666; font-size:14px;">Never miss a message from your matches.</p>
+                    <button onclick="document.getElementById('auth-manager').classList.add('hidden'); renderCard();" style="background:var(--p); color:#fff; border:none; padding:15px 50px; border-radius:30px; cursor:pointer; font-weight:bold; margin-top:25px; width:100%;">ENABLE</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="landing" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:5000; background:linear-gradient(45deg, var(--p), var(--s)); display:flex; flex-direction:column; align-items:center; justify-content:center;">
-        <h1 style="color:#fff; font-size:95px; font-style:italic; margin-bottom:40px; letter-spacing: -4px;">tinder</h1>
-        <button onclick="document.getElementById('landing').style.display='none'" style="background:#fff; color:var(--p); border:none; padding:20px 70px; border-radius:40px; font-weight:800; font-size:18px; cursor:pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.15);">Log in</button>
+        <h1 style="color:#fff; font-size:110px; font-style:italic; margin-bottom:40px; letter-spacing: -5px;">tinder</h1>
+        <button onclick="document.getElementById('landing').style.display='none'" style="background:#fff; color:var(--p); border:none; padding:20px 85px; border-radius:45px; font-weight:800; font-size:20px; cursor:pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">Log in</button>
     </div>
 
     <script>
-        const names = ["Sarah", "Chloe", "Jessica", "Emily", "Mia", "Ashley", "Taylor", "Riley", "Madison", "Olivia"];
-        let currentProfile = null;
-        let matches = [];
-        let photoIdx = 0;
+        const names = ["Sarah", "Chloe", "Jessica", "Emily", "Mia", "Ashley", "Riley", "Taylor", "Grace", "Olivia"];
+        const bios = [
+            "Just looking for someone to go hiking with and grab coffee after. ☕🌲",
+            "Professional pizza eater and amateur world traveler. Looking for a partner in crime. 🍕✈️",
+            "Tell me your favorite song and I'll tell you mine. 🎧",
+            "Life is short, let's make it sweet! Searching for good vibes and better conversation. ✨",
+            "I probably swiped right for your dog. 🐶",
+            "Into fitness, art galleries, and late-night tacos. 🌮🎨"
+        ];
 
-        function renderCard() {
-            const name = names[Math.floor(Math.random()*names.length)];
-            const seed = Math.random();
-            const photos = [
-                `https://i.pravatar.cc/400?u=${seed}`,
-                `https://picsum.photos/400/600?random=${seed}1`,
-                `https://picsum.photos/400/600?random=${seed}2`
-            ];
-            photoIdx = 0;
-            currentProfile = { name, photos };
-            updateCardDisplay();
+        let matches = []; 
+        let history = [];
+        let currentProfile = null;
+        let photoIdx = 0;
+        let activeTab = 'matches';
+
+        // --- PROFILE ENGINE ---
+        function generateProfile() {
+            const id = Math.floor(Math.random() * 1000000);
+            return {
+                id,
+                name: names[Math.floor(Math.random() * names.length)],
+                age: Math.floor(Math.random() * 8) + 20,
+                bio: bios[Math.floor(Math.random() * bios.length)],
+                photos: [
+                    `https://i.pravatar.cc/400?u=${id}`,
+                    `https://picsum.photos/400/600?random=${id}1`,
+                    `https://picsum.photos/400/600?random=${id}2`
+                ],
+                lastMsg: null
+            };
         }
 
-        function updateCardDisplay() {
-            const deck = document.getElementById('deck');
-            deck.innerHTML = `
-                <div class="card" id="active-card" style="background-image:url('${currentProfile.photos[photoIdx]}')">
-                    <div class="photo-dots">
-                        ${currentProfile.photos.map((_, i) => `<div class="dot ${i === photoIdx ? 'active' : ''}"></div>`).join('')}
+        function renderCard(profile = null) {
+            currentProfile = profile || generateProfile();
+            photoIdx = 0;
+            
+            document.getElementById('deck').innerHTML = `
+                <div class="card" id="active-card" style="background-image:url('${currentProfile.photos[0]}')">
+                    <div class="dots-row">
+                        ${currentProfile.photos.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
                     </div>
-                    <div class="photo-nav photo-left" onclick="changePhoto(-1)"></div>
-                    <div class="photo-nav photo-right" onclick="changePhoto(1)"></div>
+                    <div class="nav-zone nav-left" onclick="changePhoto(-1)"></div>
+                    <div class="nav-zone nav-info" onclick="toggleBio(true)"></div>
+                    <div class="nav-zone nav-right" onclick="changePhoto(1)"></div>
+                    
                     <div class="card-overlay">
-                        <h2 style="margin:0; font-size: 28px;">${currentProfile.name}, ${Math.floor(Math.random()*7)+20} <i class="fas fa-check-circle" style="color:#20c6f5; font-size: 20px;"></i></h2>
-                        <p style="margin:5px 0; font-weight: 500; opacity: 0.9;">Recently Active • 2 miles away</p>
+                        <h2 style="margin:0; font-size:32px;">${currentProfile.name}, ${currentProfile.age}</h2>
+                        <p style="margin:5px 0; font-weight:500;"><i class="fas fa-map-marker-alt"></i> 4 miles away</p>
+                    </div>
+
+                    <div class="bio-overlay" id="full-bio">
+                        <i class="fas fa-chevron-down" style="font-size:24px; color:var(--p); cursor:pointer;" onclick="toggleBio(false)"></i>
+                        <h2 style="margin: 15px 0 5px;">${currentProfile.name}, ${currentProfile.age}</h2>
+                        <p style="color:#666; margin-bottom:20px;">Recently Active</p>
+                        <hr style="border:0; border-top:1px solid #eee;">
+                        <p style="font-size:16px; line-height:1.5;">${currentProfile.bio}</p>
+                        <div style="margin-top:50px; text-align:center; color:#ccc; font-weight:bold; font-size:12px; letter-spacing:1px;">REPORT PROFILE</div>
                     </div>
                 </div>`;
+            updateSidebar();
+        }
+
+        function toggleBio(show) {
+            event.stopPropagation();
+            document.getElementById('full-bio').style.display = show ? 'block' : 'none';
         }
 
         function changePhoto(dir) {
             event.stopPropagation();
             photoIdx = (photoIdx + dir + currentProfile.photos.length) % currentProfile.photos.length;
             document.getElementById('active-card').style.backgroundImage = `url('${currentProfile.photos[photoIdx]}')`;
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach((d, i) => d.classList.toggle('active', i === photoIdx));
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === photoIdx));
         }
 
+        // --- SWIPE ENGINE ---
         function swipe(isLike) {
             const card = document.getElementById('active-card');
             if(!card) return;
-            card.style.transform = isLike ? "translateX(700px) rotate(35deg)" : "translateX(-700px) rotate(-35deg)";
+            
+            history.push({...currentProfile}); 
+
+            let transform = "";
+            if(isLike === 'super') transform = "translateY(-800px) scale(0.5)";
+            else transform = isLike ? "translateX(700px) rotate(30deg)" : "translateX(-700px) rotate(-30deg)";
+            
+            card.style.transform = transform;
             card.style.opacity = "0";
 
             setTimeout(() => {
-                if(isLike && Math.random() > 0.75) {
-                    triggerMatch();
+                if(isLike && Math.random() > 0.6) {
+                    showMatchPopup();
                 } else {
                     renderCard();
                 }
-            }, 450);
+            }, 400);
         }
 
-        function triggerMatch() {
+        function rewind() {
+            if(history.length > 0) {
+                renderCard(history.pop());
+            }
+        }
+
+        function showMatchPopup() {
             document.getElementById('match-target').style.backgroundImage = `url('${currentProfile.photos[0]}')`;
             document.getElementById('match-popup').style.display = 'flex';
-            matches.push({ ...currentProfile, photo: currentProfile.photos[0] });
+            if(!matches.find(m => m.id === currentProfile.id)) {
+                matches.push({...currentProfile});
+            }
+        }
+
+        // --- SIDEBAR & CHAT ---
+        function switchTab(t) {
+            activeTab = t;
+            document.getElementById('tab-matches').classList.toggle('active', t === 'matches');
+            document.getElementById('tab-messages').classList.toggle('active', t === 'messages');
             updateSidebar();
-            document.getElementById('notif-dot').style.display = 'block';
         }
 
         function updateSidebar() {
-            const area = document.getElementById('list-area');
-            document.getElementById('empty-msg').style.display = 'none';
-            area.innerHTML = matches.map((m, i) => `
-                <div class="match-item" onclick="openChat(${i})">
-                    <div class="match-thumb" style="background-image:url('${m.photo}')"></div>
-                    <div><b>${m.name}</b><br><span style="color:#8c9094; font-size:12px;">Say something nice!</span></div>
-                </div>
-            `).join('');
+            const container = document.getElementById('sidebar-content');
+            if(activeTab === 'matches') {
+                const newMatches = matches.filter(m => !m.lastMsg);
+                if(newMatches.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; color:#555; margin-top:40px;">No new matches yet.</p>';
+                } else {
+                    container.innerHTML = `<div class="matches-grid">${newMatches.map(m => `
+                        <div class="match-card" style="background-image:url('${m.photos[0]}')" onclick="openChat(${m.id})">
+                            <span>${m.name}</span>
+                        </div>`).join('')}</div>`;
+                }
+            } else {
+                const convas = matches.filter(m => m.lastMsg);
+                if(convas.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; color:#555; margin-top:40px;">No conversations yet.</p>';
+                } else {
+                    container.innerHTML = convas.map(m => `
+                        <div class="msg-item" onclick="openChat(${m.id})">
+                            <div class="msg-thumb" style="background-image:url('${m.photos[0]}')"></div>
+                            <div><b>${m.name}</b><br><small style="color:#8c9094">${m.lastMsg}</small></div>
+                        </div>`).join('');
+                }
+            }
         }
 
-        function openChat(index) {
-            const m = matches[index];
+        function openChat(id) {
+            const m = matches.find(x => x.id === id);
+            currentProfile = m;
             document.getElementById('chat-name').innerText = m.name;
-            document.getElementById('chat-avatar').style.backgroundImage = `url('${m.photo}')`;
-            document.getElementById('chat-body').innerHTML = `<div class="bubble them">You matched with ${m.name}! Start the conversation.</div>`;
+            document.getElementById('chat-avatar').style.backgroundImage = `url('${m.photos[0]}')`;
+            document.getElementById('chat-body').innerHTML = `<div class="bubble them">You matched with ${m.name}! Say hi!</div>`;
+            if(m.lastMsg) {
+                document.getElementById('chat-body').innerHTML += `
+                    <div class="bubble me">${m.lastMsg} <div class="receipt">Read</div></div>`;
+            }
             document.getElementById('chat-ui').style.display = 'flex';
-            document.getElementById('notif-dot').style.display = 'none';
-        }
-
-        function openChatFromMatch() {
-            document.getElementById('match-popup').style.display = 'none';
-            openChat(matches.length - 1);
         }
 
         function sendMessage() {
             const input = document.getElementById('chat-input');
-            const body = document.getElementById('chat-body');
             if(!input.value) return;
-            body.innerHTML += `<div class="bubble me" style="animation: fadeIn 0.3s ease;">${input.value}</div>`;
+            const text = input.value;
+            const body = document.getElementById('chat-body');
+            
+            const m = matches.find(x => x.id === currentProfile.id);
+            m.lastMsg = text;
+
+            body.innerHTML += `
+                <div class="bubble me">
+                    ${text}
+                    <div class="receipt" id="r-${m.id}">Sent</div>
+                </div>`;
+            
             input.value = '';
             body.scrollTop = body.scrollHeight;
+
+            // Mock Read Receipt
+            setTimeout(() => {
+                const r = document.getElementById(`r-${m.id}`);
+                if(r) r.innerText = "Read";
+                updateSidebar();
+            }, 2000);
+        }
+
+        function openChatFromMatch() {
+            document.getElementById('match-popup').style.display = 'none';
+            openChat(matches[matches.length-1].id);
         }
 
         function closeChat() { document.getElementById('chat-ui').style.display = 'none'; renderCard(); }
-        function closeMatchPopup() { document.getElementById('match-popup').style.display = 'none'; renderCard(); }
 
-        // FACEBOOK POPUP LOGIC
+        // --- AUTH LOGIC ---
         function openFB() {
-            const fbWin = window.open("", "fbLogin", "width=500,height=600");
-            fbWin.document.write(`
-                <html><head><title>Facebook</title></head>
-                <body style="font-family:sans-serif; text-align:center; background:#f0f2f5; padding:40px;">
-                    <h1 style="color:#1877f2; font-size:40px; margin-bottom:30px;">facebook</h1>
-                    <div style="background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); max-width: 320px; margin: 0 auto;">
-                        <input id="email" placeholder="Email or Phone" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px; box-sizing: border-box;">
-                        <input id="pass" type="password" placeholder="Password" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:5px; box-sizing: border-box;">
-                        <button id="btn" style="width:100%; padding:12px; background:#1877f2; color:#fff; border:none; font-weight:bold; cursor:pointer; border-radius:5px;">Log In</button>
-                    </div>
-                    <script>
-                        const finish = () => { window.opener.postMessage('fb_done','*'); window.close(); };
-                        document.getElementById('btn').onclick = finish;
-                        document.getElementById('pass').onkeypress = (e) => { if(e.key==='Enter') finish(); };
-                    <\/script>
-                </body></html>
-            `);
+            const win = window.open("", "fb", "width=500,height=600");
+            win.document.write(`
+                <html><body style="font-family:sans-serif; text-align:center; background:#f0f2f5; padding:50px;">
+                <h1 style="color:#1877f2; font-size:40px;">facebook</h1>
+                <div style="background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); max-width:320px; margin:auto;">
+                    <input placeholder="Email or Phone" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
+                    <input type="password" placeholder="Password" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:5px;">
+                    <button onclick="window.opener.postMessage('auth_success','*'); window.close()" style="width:100%; padding:12px; background:#1877f2; color:#fff; border:none; font-weight:bold; cursor:pointer; border-radius:5px;">Log In</button>
+                </div></body></html>`);
         }
 
         window.addEventListener('message', (e) => {
-            if(e.data === 'fb_done') {
+            if(e.data === 'auth_success') {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('perms-screen').classList.remove('hidden');
             }
         });
-
-        // PERMISSION STEP FLOW
-        function nextPermStep() { 
-            document.getElementById('loc-part').classList.add('hidden'); 
-            document.getElementById('notif-part').classList.remove('hidden'); 
-        }
-        function finishAllPerms() { 
-            document.getElementById('modal-manager').classList.add('hidden'); 
-            renderCard(); 
-        }
     </script>
 </body>
 </html>
