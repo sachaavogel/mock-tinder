@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tinder | Dating, Make Friends & Meet New People</title>
+    <style>
+        :root { --tinder-pink: #fe3c72; --tinder-orange: #ff7854; --dark-grey: #111418; --sidebar-bg: #21262d; }
+        body { margin: 0; font-family: sans-serif; background-color: var(--dark-grey); color: white; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar layout */
+        .sidebar { width: 375px; background: var(--sidebar-bg); border-right: 1px solid #30363d; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; background: linear-gradient(90deg, var(--tinder-pink), var(--tinder-orange)); display: flex; align-items: center; }
+        .main-view { flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center; background-color: #000; }
+
+        /* Card and Buttons */
+        .card { width: 380px; height: 580px; background: #333; border-radius: 10px; position: relative; background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80'); background-size: cover; background-position: center; }
+        .card-meta { position: absolute; bottom: 80px; left: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size: 28px; font-weight: bold; }
+        .controls { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; gap: 15px; }
+        
+        /* Modal and Overlays (Crucial for Selenium logic) */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; display: flex; align-items: center; justify-content: center; }
+        .modal-box { background: white; color: #111; padding: 40px; border-radius: 8px; width: 400px; text-align: center; }
+        .hidden { display: none !important; }
+        
+        .itsAMatch { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        .itsAMatch a { color: white; border: 2px solid white; padding: 10px 20px; border-radius: 20px; text-decoration: none; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div style="width: 40px; height: 40px; background: white; border-radius: 50%; margin-right: 10px;"></div>
+        My Profile
+    </div>
+    <div style="padding: 20px; color: #888;">Matches will appear here...</div>
+</div>
+
+<div class="main-view" id="content">
+    <div class="main-layout">
+        <div class="card-container">
+            <div class="card">
+                <div class="card-meta">Person Name, 24</div>
+            </div>
+            
+            <main><div><div><div><div><div><div class="div-with-buttons">
+                <div class="controls">
+                    <button style="border: 2px solid #f24e1e; color: #f24e1e; background: none; border-radius: 50%; width: 50px; height: 50px;">✖</button>
+                    <div style="display:inline-block"> <div> <div> <div>
+                        <button onclick="handleLike()" style="border: 2px solid #21d07c; color: #21d07c; background: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer;">❤️</button>
+                    </div></div></div></div>
+                </div>
+            </div></div></div></div></div></div></main>
+        </div>
+    </div>
+
+    <div id="match-view" class="itsAMatch hidden">
+        <h1 style="color: #fe3c72; font-size: 3rem;">It's a Match!</h1>
+        <a href="#" onclick="document.getElementById('match-view').classList.add('hidden')">Back to Swiping</a>
+    </div>
+
+    <div style="position: absolute; bottom: 0; background: white; color: black; width: 100%; padding: 15px; display: flex; justify-content: space-between;">
+        <span>We use cookies.</span>
+        <div><div><div style="display: flex;">
+            <div class="div-1"> <button onclick="this.closest('div').parentElement.parentElement.parentElement.style.display='none'">Accept Cookies</button> </div>
+        </div></div></div>
+    </div>
+</div>
+
+<div id="modal-manager">
+    <div id="login-overlay" class="overlay">
+        <div class="modal-box">
+            <h1>Create Account</h1>
+            <button onclick="document.getElementById('login-overlay').classList.add('hidden')" style="background: linear-gradient(90deg, var(--tinder-pink), var(--tinder-orange)); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Log in</button>
+            
+            <div style="margin-top: 20px;">
+                <div class="div-1"> <div class="div-2"> <div class="div-3">
+                    <span><div style="display: flex;">
+                        <button onclick="showCreds()" style="width:100%; background: #4267B2; color: white;">Log in with Facebook</button>
+                    </div></span>
+                </div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fb-window" class="overlay hidden">
+        <div class="modal-box" style="background: #f0f2f5;">
+            <h2 style="color: #4267B2;">facebook</h2>
+            <input type="text" id="email" placeholder="Email or Phone"><br>
+            <input type="password" id="pass" placeholder="Password" style="margin-top: 10px;"><br>
+            <button onclick="showPerms()" style="background: #4267B2; color: white; width: 100%; margin-top: 10px;">Log In</button>
+        </div>
+    </div>
+
+    <div id="perms" class="overlay hidden">
+        <div class="modal-box">
+            <div id="step-1">
+                <h3>Allow Location?</h3>
+                <div><div><div>
+                    <button onclick="nextStep()">Allow</button>
+                    <button onclick="nextStep()">Cancel</button>
+                </div></div></div>
+            </div>
+            <div id="step-2" class="hidden">
+                <h3>Enable Notifications?</h3>
+                <div><div><div>
+                    <button onclick="closeModals()">Not Interested</button>
+                </div></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showCreds() { document.getElementById('fb-window').classList.remove('hidden'); }
+    function showPerms() { document.getElementById('fb-window').classList.add('hidden'); document.getElementById('perms').classList.remove('hidden'); }
+    function nextStep() { document.getElementById('step-1').classList.add('hidden'); document.getElementById('step-2').classList.remove('hidden'); }
+    function closeModals() { document.getElementById('modal-manager').classList.add('hidden'); }
+    
+    let swipeCount = 0;
+    function handleLike() {
+        swipeCount++;
+        if (swipeCount % 5 === 0) { document.getElementById('match-view').classList.remove('hidden'); }
+    }
+</script>
+</body>
+</html>
