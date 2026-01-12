@@ -4,124 +4,221 @@
     <meta charset="UTF-8">
     <title>Tinder | Dating, Make Friends & Meet New People</title>
     <style>
-        :root { --tinder-pink: #fe3c72; --tinder-orange: #ff7854; --dark-grey: #111418; --sidebar-bg: #21262d; }
-        body { margin: 0; font-family: sans-serif; background-color: var(--dark-grey); color: white; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar layout */
-        .sidebar { width: 375px; background: var(--sidebar-bg); border-right: 1px solid #30363d; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; background: linear-gradient(90deg, var(--tinder-pink), var(--tinder-orange)); display: flex; align-items: center; }
-        .main-view { flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center; background-color: #000; }
+        :root {
+            --primary: #fe3c72;
+            --secondary: #ff7854;
+            --dark-bg: #111418;
+            --card-bg: #000000;
+            --gray-text: #e0e0e0;
+        }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--dark-bg); color: white; height: 100vh; overflow: hidden; display: flex; }
 
-        /* Card and Buttons */
-        .card { width: 380px; height: 580px; background: #333; border-radius: 10px; position: relative; background-image: url('https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80'); background-size: cover; background-position: center; }
-        .card-meta { position: absolute; bottom: 80px; left: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size: 28px; font-weight: bold; }
-        .controls { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; gap: 15px; }
+        /* --- LAYOUT --- */
+        .sidebar { width: 375px; background: #1e2329; border-right: 1px solid #2f3640; display: flex; flex-direction: column; z-index: 5; }
+        .sidebar-header { background: linear-gradient(to right, var(--primary), var(--secondary)); padding: 15px; height: 50px; display: flex; align-items: center; justify-content: space-between; font-weight: bold; }
+        .match-area { padding: 20px; color: #7c8591; text-align: center; margin-top: 50px; }
         
-        /* Modal and Overlays (Crucial for Selenium logic) */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; display: flex; align-items: center; justify-content: center; }
-        .modal-box { background: white; color: #111; padding: 40px; border-radius: 8px; width: 400px; text-align: center; }
+        #content { flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center; background: var(--dark-bg); }
+
+        /* --- MAIN CARD STACK --- */
+        .card-container { width: 375px; height: 600px; position: relative; }
+        .card { width: 100%; height: 100%; background-color: var(--card-bg); border-radius: 8px; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.3); background-image: url('https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80'); background-size: cover; background-position: center; }
+        .card-info { position: absolute; bottom: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); box-sizing: border-box; }
+        .card-info h2 { margin: 0; font-size: 28px; }
+        .card-info p { margin: 5px 0 0; font-size: 16px; opacity: 0.9; }
+
+        /* --- CONTROLS (Like/Dislike) --- */
+        /* These styles make the deep nesting invisible but keeps buttons layout correct */
+        .controls-wrapper { position: absolute; bottom: -80px; width: 100%; display: flex; justify-content: center; gap: 20px; }
+        .control-btn { width: 60px; height: 60px; border-radius: 50%; border: 2px solid; background: #1e2329; font-size: 24px; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
+        .control-btn:active { transform: scale(0.9); }
+        .btn-nope { border-color: #ec5e6f; color: #ec5e6f; }
+        .btn-like { border-color: #4ce586; color: #4ce586; }
+        
+        /* --- COOKIE BANNER --- */
+        .cookie-banner { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #1e2329; border-top: 1px solid #333; padding: 20px; display: flex; justify-content: center; align-items: center; z-index: 9999; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); }
+        .cookie-content { max-width: 900px; width: 100%; display: flex; justify-content: space-between; align-items: center; }
+        .cookie-btn { background-color: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        
+        /* --- MODALS & POPUPS --- */
         .hidden { display: none !important; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .modal { background: white; color: #333; width: 400px; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .fb-btn { background: #4267b2; color: white; width: 100%; padding: 12px; border: none; border-radius: 4px; font-weight: bold; margin-top: 15px; cursor: pointer; }
         
-        .itsAMatch { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
-        .itsAMatch a { color: white; border: 2px solid white; padding: 10px 20px; border-radius: 20px; text-decoration: none; margin-top: 15px; }
+        /* Match Popup */
+        .itsAMatch { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .itsAMatch h1 { font-family: 'Brush Script MT', cursive; font-size: 80px; color: #4ce586; margin: 0; transform: rotate(-5deg); text-shadow: 2px 2px #000; }
+        .match-btn { margin-top: 30px; background: transparent; border: 2px solid white; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; text-decoration: none; font-weight: bold; }
+    
     </style>
 </head>
 <body>
 
 <div class="sidebar">
     <div class="sidebar-header">
-        <div style="width: 40px; height: 40px; background: white; border-radius: 50%; margin-right: 10px;"></div>
-        My Profile
+        <span>MY PROFILE</span>
     </div>
-    <div style="padding: 20px; color: #888;">Matches will appear here...</div>
-</div>
-
-<div class="main-view" id="content">
-    <div class="main-layout">
-        <div class="card-container">
-            <div class="card">
-                <div class="card-meta">Person Name, 24</div>
-            </div>
-            
-            <main><div><div><div><div><div><div class="div-with-buttons">
-                <div class="controls">
-                    <button style="border: 2px solid #f24e1e; color: #f24e1e; background: none; border-radius: 50%; width: 50px; height: 50px;">✖</button>
-                    <div style="display:inline-block"> <div> <div> <div>
-                        <button onclick="handleLike()" style="border: 2px solid #21d07c; color: #21d07c; background: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer;">❤️</button>
-                    </div></div></div></div>
-                </div>
-            </div></div></div></div></div></div></main>
+    <div class="match-area">
+        <p>Matches</p>
+        <div style="margin-top:20px; border-top: 1px solid #333; padding-top: 20px;">
+            Click 'Log in' to start
         </div>
     </div>
+</div>
 
-    <div id="match-view" class="itsAMatch hidden">
-        <h1 style="color: #fe3c72; font-size: 3rem;">It's a Match!</h1>
-        <a href="#" onclick="document.getElementById('match-view').classList.add('hidden')">Back to Swiping</a>
+<div id="content">
+    <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+        
+        <div class="div-1-wrapper" style="position: relative;">
+            <div class="card-container">
+                <main>
+                    <div class="nest-1">
+                        <div class="card">
+                            <div class="card-info">
+                                <h2>Sarah, 24</h2>
+                                <p>Travel & Pizza 🍕</p>
+                            </div>
+                        </div>
+                        
+                        <div class="controls-wrapper">
+                            <div class="nest-2" style="display:flex; gap: 20px;">
+                                <button class="control-btn btn-nope">✖</button>
+                                
+                                <div class="nest-3"></div> <div class="nest-3"></div> <div class="nest-3"></div> <div class="nest-3">       <button class="control-btn btn-like" onclick="handleLike()">♥</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <div class="cookie-banner-wrapper">
+            <div class="cookie-banner" id="cookie-ui">
+                <div class="cookie-content">
+                    <span>We use cookies to make your experience better.</span>
+                    <div class="cookie-nest-1">
+                        <button class="cookie-btn" onclick="document.getElementById('cookie-ui').style.display='none'">I ACCEPT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div style="position: absolute; bottom: 0; background: white; color: black; width: 100%; padding: 15px; display: flex; justify-content: space-between;">
-        <span>We use cookies.</span>
-        <div><div><div style="display: flex;">
-            <div class="div-1"> <button onclick="this.closest('div').parentElement.parentElement.parentElement.style.display='none'">Accept Cookies</button> </div>
-        </div></div></div>
+    <div id="match-popup" class="itsAMatch hidden">
+        <h1>It's a Match!</h1>
+        <p style="color: white; margin-top: -10px;">You and Sarah like each other.</p>
+        <a class="match-btn" onclick="document.getElementById('match-popup').classList.add('hidden')">KEEP SWIPING</a>
     </div>
+
 </div>
 
 <div id="modal-manager">
-    <div id="login-overlay" class="overlay">
-        <div class="modal-box">
-            <h1>Create Account</h1>
-            <button onclick="document.getElementById('login-overlay').classList.add('hidden')" style="background: linear-gradient(90deg, var(--tinder-pink), var(--tinder-orange)); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Log in</button>
+    
+    <div id="login-modal" class="overlay hidden">
+        <div class="modal">
+            <h2 style="color: #333;">Get Started</h2>
+            <p>By clicking Log In, you agree to our Terms.</p>
             
-            <div style="margin-top: 20px;">
-                <div class="div-1"> <div class="div-2"> <div class="div-3">
-                    <span><div style="display: flex;">
-                        <button onclick="showCreds()" style="width:100%; background: #4267B2; color: white;">Log in with Facebook</button>
-                    </div></span>
-                </div></div></div>
+            <div class="nest-modal-1">
+                <div class="nest-modal-2">
+                    <div class="nest-modal-3"> <span>
+                            <div class="nest-modal-4"></div> <div class="nest-modal-target">  <button class="fb-btn" onclick="openFbMock()">Log in with Facebook</button>
+                            </div>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="fb-window" class="overlay hidden">
-        <div class="modal-box" style="background: #f0f2f5;">
-            <h2 style="color: #4267B2;">facebook</h2>
-            <input type="text" id="email" placeholder="Email or Phone"><br>
-            <input type="password" id="pass" placeholder="Password" style="margin-top: 10px;"><br>
-            <button onclick="showPerms()" style="background: #4267B2; color: white; width: 100%; margin-top: 10px;">Log In</button>
+    <div id="fb-mock" class="overlay hidden" style="background: rgba(255,255,255,0.9);">
+        <div class="modal" style="border: 1px solid #ccc; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+            <h3 style="color: #4267b2; margin-top: 0;">facebook</h3>
+            <input type="text" id="email" placeholder="Email or Phone" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box;">
+            <input type="password" id="pass" placeholder="Password" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box;">
+            <button onclick="loginSuccess()" style="width: 100%; padding: 10px; background: #4267b2; color: white; border: none; cursor: pointer;">Log In</button>
         </div>
     </div>
 
-    <div id="perms" class="overlay hidden">
-        <div class="modal-box">
-            <div id="step-1">
-                <h3>Allow Location?</h3>
-                <div><div><div>
-                    <button onclick="nextStep()">Allow</button>
-                    <button onclick="nextStep()">Cancel</button>
-                </div></div></div>
+    <div id="perms-mock" class="overlay hidden">
+        <div class="modal">
+            <div id="loc-step">
+                <h3>Enable Location</h3>
+                <p>You need to enable location to use Tinder.</p>
+                <div class="perm-nest">
+                    <div class="nest-p1"></div>
+                    <div class="nest-p2"></div>
+                    <div class="nest-p3" style="display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="nextPerm()" style="background: var(--primary); color: white; border:none; padding: 10px 20px; border-radius: 20px;">ALLOW</button>
+                        <button onclick="nextPerm()" style="background: #ccc; border:none; padding: 10px 20px; border-radius: 20px;">NO THANKS</button>
+                    </div>
+                </div>
             </div>
-            <div id="step-2" class="hidden">
-                <h3>Enable Notifications?</h3>
-                <div><div><div>
-                    <button onclick="closeModals()">Not Interested</button>
-                </div></div></div>
+
+            <div id="notif-step" class="hidden">
+                <h3>Enable Notifications</h3>
+                <div class="perm-nest">
+                     <div class="nest-p1"></div>
+                     <div class="nest-p2"></div>
+                     <div class="nest-p3" style="display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="finishLogin()" style="background: var(--primary); color: white; border:none; padding: 10px 20px; border-radius: 20px;">ENABLE</button>
+                        <button onclick="finishLogin()" style="background: #ccc; border:none; padding: 10px 20px; border-radius: 20px;">NOT NOW</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+</div>
+
+<div id="start-screen" style="position: fixed; top:0; left:0; width:100%; height:100%; z-index: 20000; background: linear-gradient(45deg, #fe3c72, #ff7854); display: flex; align-items: center; justify-content: center;">
+    <button onclick="document.getElementById('start-screen').classList.add('hidden'); document.getElementById('login-modal').classList.remove('hidden');" style="background: white; color: #fe3c72; border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; font-size: 18px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        LOG IN
+    </button>
 </div>
 
 <script>
-    function showCreds() { document.getElementById('fb-window').classList.remove('hidden'); }
-    function showPerms() { document.getElementById('fb-window').classList.add('hidden'); document.getElementById('perms').classList.remove('hidden'); }
-    function nextStep() { document.getElementById('step-1').classList.add('hidden'); document.getElementById('step-2').classList.remove('hidden'); }
-    function closeModals() { document.getElementById('modal-manager').classList.add('hidden'); }
-    
-    let swipeCount = 0;
-    function handleLike() {
-        swipeCount++;
-        if (swipeCount % 5 === 0) { document.getElementById('match-view').classList.remove('hidden'); }
+    // Logic to handle state transitions for the bot
+    function openFbMock() {
+        document.getElementById('login-modal').classList.add('hidden');
+        document.getElementById('fb-mock').classList.remove('hidden');
     }
+
+    function loginSuccess() {
+        document.getElementById('fb-mock').classList.add('hidden');
+        document.getElementById('perms-mock').classList.remove('hidden');
+    }
+
+    function nextPerm() {
+        document.getElementById('loc-step').classList.add('hidden');
+        document.getElementById('notif-step').classList.remove('hidden');
+    }
+
+    function finishLogin() {
+        document.getElementById('modal-manager').classList.add('hidden');
+    }
+
+    // Like Logic & Match Simulation
+    let likes = 0;
+    function handleLike() {
+        likes++;
+        console.log("Like count:", likes);
+        // Simulate a match every 5 likes to test exception handling
+        if (likes % 5 === 0) {
+            document.getElementById('match-popup').classList.remove('hidden');
+        }
+    }
+
+    // Handle ENTER key for password field (Python script uses Keys.ENTER)
+    document.getElementById('pass').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            loginSuccess();
+        }
+    });
 </script>
+
 </body>
 </html>
