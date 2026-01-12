@@ -22,19 +22,27 @@
         .notification-dot { position: absolute; right: 25%; top: 12px; width: 8px; height: 8px; background: var(--p); border-radius: 50%; display: none; }
 
         .list-area { flex-grow: 1; overflow-y: auto; }
-        .match-item { padding: 10px 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
-        .match-item:hover { background: #252b32; }
-        .match-thumb { width: 60px; height: 60px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid var(--p); }
+        .match-item { padding: 12px 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid #252b32; }
+        .match-thumb { width: 55px; height: 55px; border-radius: 50%; background-size: cover; background-position: center; }
 
         /* --- MAIN VIEW --- */
         #content { flex-grow: 1; position: relative; display: flex; flex-direction: column; background: #000; align-items: center; justify-content: center; }
         .deck-wrapper { width: 400px; height: 600px; position: relative; }
-        .card { width: 100%; height: 100%; border-radius: 10px; background-size: cover; background-position: center; position: absolute; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-end; transition: transform 0.5s ease, opacity 0.5s; }
-        .card-overlay { padding: 24px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); border-radius: 0 0 10px 10px; }
+        .card { width: 100%; height: 100%; border-radius: 10px; background-size: cover; background-position: center; position: absolute; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-end; transition: transform 0.5s ease, opacity 0.5s; overflow: hidden; }
+        .card-overlay { padding: 24px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); pointer-events: none; }
         
+        /* Photo Navigation Areas */
+        .photo-nav { position: absolute; top: 0; width: 50%; height: 80%; z-index: 5; }
+        .photo-left { left: 0; }
+        .photo-right { right: 0; }
+        .photo-dots { position: absolute; top: 10px; width: 100%; display: flex; justify-content: center; gap: 5px; z-index: 10; }
+        .dot { width: 100%; max-width: 40px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; }
+        .dot.active { background: #fff; }
+
         /* BUTTONS (Instructor's XPaths) */
-        .gamepad { display: flex; gap: 12px; align-items: center; margin-top: 20px; }
-        .circle-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--bg); border: 1px solid; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
+        .gamepad { display: flex; gap: 12px; align-items: center; margin-top: 20px; z-index: 20; }
+        .circle-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--bg); border: 1px solid; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: 0.1s; }
+        .circle-btn:active { transform: scale(0.85); }
         .btn-nope { border-color: #ec5e6f; color: #ec5e6f; width: 65px; height: 65px; font-size: 28px; }
         .btn-like { border-color: #2db869; color: #2db869; width: 65px; height: 65px; font-size: 28px; }
 
@@ -42,25 +50,24 @@
         .chat-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 100; display: none; flex-direction: column; }
         .chat-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
         .chat-body { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 75%; padding: 10px 15px; border-radius: 18px; font-size: 15px; line-height: 1.4; }
-        .bubble.them { background: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
-        .bubble.me { background: var(--msg-me); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .bubble { max-width: 75%; padding: 10px 15px; border-radius: 18px; font-size: 15px; }
+        .bubble.them { background: #333; align-self: flex-start; }
+        .bubble.me { background: var(--msg-me); align-self: flex-end; }
         .chat-input-area { padding: 20px; display: flex; gap: 10px; border-top: 1px solid var(--border); }
         .chat-input { flex-grow: 1; background: #252b32; border: none; border-radius: 20px; padding: 12px 20px; color: #fff; outline: none; }
-        .btn-send { background: none; border: none; color: var(--p); font-weight: 700; cursor: pointer; }
 
         /* --- MODALS --- */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; }
         .modal { background: #fff; color: #111; padding: 40px; border-radius: 16px; width: 340px; text-align: center; }
         .hidden { display: none !important; }
 
-        /* IT'S A MATCH (Real UI) */
+        /* IT'S A MATCH (Selector: .itsAMatch a) */
         .itsAMatch { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .match-title { font-family: 'Brush Script MT', cursive; font-size: 80px; color: #2db869; transform: rotate(-5deg); margin-bottom: 30px; }
         .match-avatars { display: flex; gap: -10px; margin-bottom: 40px; }
-        .match-avatar { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #fff; background-size: cover; }
+        .match-avatar { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #fff; background-size: cover; background-position: center; }
         .match-actions { display: flex; flex-direction: column; gap: 15px; width: 280px; }
-        .match-btn { padding: 15px; border-radius: 30px; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center; border: 2px solid #fff; color: #fff; }
+        .match-btn { padding: 15px; border-radius: 30px; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center; border: 2px solid #fff; color: #fff; font-size: 14px; }
         .match-btn.primary { background: #fff; color: #111; }
     </style>
 </head>
@@ -72,18 +79,18 @@
             <div style="display:flex; gap:16px; opacity:0.8;"><i class="fas fa-shield-alt"></i><i class="fas fa-cog"></i></div>
         </div>
         <div class="tab-nav">
-            <div class="tab active" onclick="showTab('matches')">Matches</div>
-            <div class="tab" onclick="showTab('messages')">Messages <span id="notif" class="notification-dot"></span></div>
+            <div class="tab active">Matches</div>
+            <div class="tab">Messages <span id="notif" class="notification-dot"></span></div>
         </div>
         <div class="list-area" id="list-area">
-            <p id="empty-msg" style="text-align:center; color:#555; margin-top:50px;">Start swiping to see matches!</p>
+            <p id="empty-msg" style="text-align:center; color:#555; margin-top:50px; font-size: 14px;">No matches yet. Start swiping!</p>
         </div>
     </aside>
 
     <main id="content">
         <div style="position: absolute; width:100%; bottom:0; z-index: 200;">
-            <div style="background: #fff; color: #111; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size:14px; margin-left:20px;">We value your privacy. This is a simulation environment.</span>
+            <div style="background: #fff; color: #111; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd;">
+                <span style="font-size:14px; margin-left:20px;">This site uses cookies to provide the best experience possible.</span>
                 <div style="margin-right:20px;">
                     <button onclick="this.closest('div').parentElement.parentElement.style.display='none'" style="background: var(--p); color:#fff; border:none; padding:10px 25px; border-radius:5px; font-weight:bold; cursor:pointer;">I ACCEPT</button>
                 </div>
@@ -109,15 +116,13 @@
         <div id="chat-ui" class="chat-container">
             <div class="chat-header">
                 <i class="fas fa-chevron-left" onclick="closeChat()" style="cursor:pointer; font-size:20px;"></i>
-                <div id="chat-avatar" style="width:40px; height:40px; border-radius:50%; background-size:cover;"></div>
+                <div id="chat-avatar" style="width:40px; height:40px; border-radius:50%; background-size:cover; background-position:center;"></div>
                 <b id="chat-name">Name</b>
             </div>
-            <div class="chat-body" id="chat-body">
-                <div class="bubble them">You matched! Say something nice.</div>
-            </div>
+            <div class="chat-body" id="chat-body"></div>
             <div class="chat-input-area">
                 <input type="text" id="chat-input" class="chat-input" placeholder="Type a message...">
-                <button class="btn-send" onclick="sendMessage()">SEND</button>
+                <button style="background:none; border:none; color:var(--p); font-weight:bold; cursor:pointer;" onclick="sendMessage()">SEND</button>
             </div>
         </div>
 
@@ -138,52 +143,82 @@
         <div id="login-screen" class="overlay">
             <div class="modal">
                 <h1 style="color:var(--p); font-style:italic; font-size:45px; margin-bottom:10px;">tinder</h1>
+                <p style="font-weight:700; margin-bottom:25px; font-size:14px;">Log in to find your perfect match.</p>
+                
                 <div class="n1"><div class="n2"><div class="n3">
                     <span><div style="display:flex;">
-                        <button onclick="openFB()" style="width:100%; background:#1877f2; color:#fff; border:none; padding:14px; border-radius:30px; font-weight:700; cursor:pointer;">LOG IN WITH FACEBOOK</button>
+                        <button id="fb-trigger" onclick="openFB()" style="width:100%; background:#1877f2; color:#fff; border:none; padding:14px; border-radius:30px; font-weight:700; cursor:pointer;">LOG IN WITH FACEBOOK</button>
                     </div></span>
                 </div></div></div>
-                <button style="width:100%; margin-top:15px; background:none; border:1px solid #ccc; padding:14px; border-radius:30px; color:#555; font-weight:700;">LOG IN WITH PHONE</button>
+                
+                <button style="width:100%; margin-top:15px; background:none; border:1px solid #ccc; padding:14px; border-radius:30px; color:#555; font-weight:700;">LOG IN WITH PHONE NUMBER</button>
             </div>
         </div>
 
         <div id="perms-screen" class="overlay hidden">
             <div class="modal">
                 <div id="loc">
+                    <i class="fas fa-map-marker-alt" style="font-size:40px; color:var(--p); margin-bottom:20px;"></i>
                     <h2>Allow Location</h2>
-                    <p style="color:#666; font-size:14px;">Find great people near you.</p>
-                    <div style="margin-top:30px;"><button onclick="nextP()" style="background:var(--p); color:#fff; border:none; padding:14px 50px; border-radius:30px; font-weight:700; cursor:pointer;">ALLOW</button></div>
+                    <p style="color:#666; font-size:14px;">Help us find people nearby.</p>
+                    <div style="margin-top:30px;"><button onclick="nextP()" style="background:var(--p); color:#fff; border:none; padding:14px 60px; border-radius:30px; font-weight:700; cursor:pointer;">ALLOW</button></div>
                 </div>
                 <div id="notif" class="hidden">
-                    <h2>Allow Notifications</h2>
-                    <p style="color:#666; font-size:14px;">Don't miss a single match.</p>
-                    <div style="margin-top:30px;"><button onclick="finishP()" style="background:var(--p); color:#fff; border:none; padding:14px 50px; border-radius:30px; font-weight:700; cursor:pointer;">ENABLE</button></div>
+                    <i class="fas fa-bell" style="font-size:40px; color:var(--p); margin-bottom:20px;"></i>
+                    <h2>Enable Notifications</h2>
+                    <p style="color:#666; font-size:14px;">Know the moment you get a match.</p>
+                    <div style="margin-top:30px;"><button onclick="finishP()" style="background:var(--p); color:#fff; border:none; padding:14px 60px; border-radius:30px; font-weight:700; cursor:pointer;">ENABLE</button></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="landing" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; background:linear-gradient(45deg, var(--p), var(--s)); display:flex; flex-direction:column; align-items:center; justify-content:center;">
+    <div id="landing" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:5000; background:linear-gradient(45deg, var(--p), var(--s)); display:flex; flex-direction:column; align-items:center; justify-content:center;">
         <h1 style="color:#fff; font-size:80px; font-style:italic; margin-bottom:40px;">tinder</h1>
         <button onclick="document.getElementById('landing').style.display='none'" style="background:#fff; color:var(--p); border:none; padding:18px 60px; border-radius:40px; font-weight:800; font-size:18px; cursor:pointer;">Log in</button>
     </div>
 
     <script>
-        const names = ["Sarah", "Chloe", "Jessica", "Emily", "Mia", "Ashley"];
+        const names = ["Sarah", "Chloe", "Jessica", "Emily", "Mia", "Ashley", "Taylor", "Riley"];
         let currentProfile = null;
         let matches = [];
+        let photoIdx = 0;
 
         function renderCard() {
             const name = names[Math.floor(Math.random()*names.length)];
-            const img = `https://i.pravatar.cc/400?u=${Math.random()}`;
-            currentProfile = { name, img };
-            document.getElementById('deck').innerHTML = `
-                <div class="card" id="active-card" style="background-image:url('${img}')">
+            const seed = Math.random();
+            const photos = [
+                `https://i.pravatar.cc/400?u=${seed}`,
+                `https://picsum.photos/400/600?random=${seed}1`,
+                `https://picsum.photos/400/600?random=${seed}2`
+            ];
+            photoIdx = 0;
+            currentProfile = { name, photos };
+            
+            updateCardDisplay();
+        }
+
+        function updateCardDisplay() {
+            const deck = document.getElementById('deck');
+            deck.innerHTML = `
+                <div class="card" id="active-card" style="background-image:url('${currentProfile.photos[photoIdx]}')">
+                    <div class="photo-dots">
+                        ${currentProfile.photos.map((_, i) => `<div class="dot ${i === photoIdx ? 'active' : ''}"></div>`).join('')}
+                    </div>
+                    <div class="photo-nav photo-left" onclick="changePhoto(-1)"></div>
+                    <div class="photo-nav photo-right" onclick="changePhoto(1)"></div>
                     <div class="card-overlay">
-                        <h2 style="margin:0">${name}, ${Math.floor(Math.random()*7)+20} <i class="fas fa-check-circle" style="color:#20c6f5"></i></h2>
-                        <p style="margin:5px 0">3 miles away • Active now</p>
+                        <h2 style="margin:0">${currentProfile.name}, ${Math.floor(Math.random()*7)+20} <i class="fas fa-check-circle" style="color:#20c6f5"></i></h2>
+                        <p style="margin:5px 0">Active Now • Nearby</p>
                     </div>
                 </div>`;
+        }
+
+        function changePhoto(dir) {
+            photoIdx = (photoIdx + dir + currentProfile.photos.length) % currentProfile.photos.length;
+            document.getElementById('active-card').style.backgroundImage = `url('${currentProfile.photos[photoIdx]}')`;
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i === photoIdx));
         }
 
         function swipe(isLike) {
@@ -193,7 +228,7 @@
             card.style.opacity = "0";
 
             setTimeout(() => {
-                if(isLike && Math.random() > 0.7) {
+                if(isLike && Math.random() > 0.75) {
                     triggerMatch();
                 } else {
                     renderCard();
@@ -202,11 +237,9 @@
         }
 
         function triggerMatch() {
-            document.getElementById('match-target').style.backgroundImage = `url('${currentProfile.img}')`;
+            document.getElementById('match-target').style.backgroundImage = `url('${currentProfile.photos[0]}')`;
             document.getElementById('match-popup').style.display = 'flex';
-            
-            const m = { ...currentProfile };
-            matches.push(m);
+            matches.push({ ...currentProfile, photo: currentProfile.photos[0] });
             updateSidebar();
             document.getElementById('notif').style.display = 'block';
         }
@@ -216,19 +249,18 @@
             document.getElementById('empty-msg').style.display = 'none';
             area.innerHTML = matches.map((m, i) => `
                 <div class="match-item" onclick="openChat(${i})">
-                    <div class="match-thumb" style="background-image:url('${m.img}')"></div>
-                    <div><b>${m.name}</b><br><span style="color:#8c9094; font-size:12px;">New Match!</span></div>
+                    <div class="match-thumb" style="background-image:url('${m.photo}')"></div>
+                    <div><b>${m.name}</b><br><span style="color:#8c9094; font-size:12px;">Recently Active</span></div>
                 </div>
             `).join('');
         }
 
-        // CHAT LOGIC
         function openChat(index) {
             const m = matches[index];
             document.getElementById('chat-name').innerText = m.name;
-            document.getElementById('chat-avatar').style.backgroundImage = `url('${m.img}')`;
+            document.getElementById('chat-avatar').style.backgroundImage = `url('${m.photo}')`;
+            document.getElementById('chat-body').innerHTML = `<div class="bubble them">You matched with ${m.name}! Say hi.</div>`;
             document.getElementById('chat-ui').style.display = 'flex';
-            document.getElementById('notif').style.display = 'none';
         }
 
         function openChatFromMatch() {
@@ -240,43 +272,37 @@
             const input = document.getElementById('chat-input');
             const body = document.getElementById('chat-body');
             if(!input.value) return;
-
             body.innerHTML += `<div class="bubble me">${input.value}</div>`;
-            const val = input.value;
             input.value = '';
             body.scrollTop = body.scrollHeight;
-
-            setTimeout(() => {
-                body.innerHTML += `<div class="bubble them">That's interesting! Tell me more about "${val}"?</div>`;
-                body.scrollTop = body.scrollHeight;
-            }, 1000);
         }
-
-        // Handle Enter key for Chat
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') sendMessage();
-        });
 
         function closeChat() { document.getElementById('chat-ui').style.display = 'none'; renderCard(); }
         function closeMatchPopup() { document.getElementById('match-popup').style.display = 'none'; renderCard(); }
-        
-        // FB WINDOW
+
+        // FACEBOOK LOGIN LOGIC
         function openFB() {
-            const fb = window.open("", "fb", "width=500,height=600");
-            fb.document.write(`<html><body style="font-family:sans-serif; text-align:center; background:#f0f2f5; padding:50px;">
-                <h1 style="color:#1877f2">facebook</h1>
-                <input id="email" placeholder="Email" style="width:100%; padding:12px; margin:10px 0;">
-                <input id="pass" type="password" placeholder="Password" style="width:100%; padding:12px; margin:10px 0;">
-                <button id="btn" style="width:100%; padding:12px; background:#1877f2; color:#fff; border:none; font-weight:bold; cursor:pointer;">Log In</button>
-                <script>
-                    const go = () => { window.opener.postMessage('ok','*'); window.close(); };
-                    document.getElementById('btn').onclick = go;
-                    document.getElementById('pass').onkeypress = (e) => { if(e.key==='Enter') go(); };
-                </script></body></html>`);
+            const fbWin = window.open("", "fbLogin", "width=500,height=600");
+            fbWin.document.write(`
+                <html><head><title>Facebook</title></head>
+                <body style="font-family:sans-serif; text-align:center; background:#f0f2f5; padding:50px;">
+                    <h1 style="color:#1877f2; font-size:40px;">facebook</h1>
+                    <div style="background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1)">
+                        <input id="email" placeholder="Email or Phone" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:5px;">
+                        <input id="pass" type="password" placeholder="Password" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:5px;">
+                        <button id="btn" style="width:100%; padding:12px; background:#1877f2; color:#fff; border:none; font-weight:bold; cursor:pointer; border-radius:5px;">Log In</button>
+                    </div>
+                    <script>
+                        const finish = () => { window.opener.postMessage('fb_done','*'); window.close(); };
+                        document.getElementById('btn').onclick = finish;
+                        document.getElementById('pass').onkeypress = (e) => { if(e.key==='Enter') finish(); };
+                    <\/script>
+                </body></html>
+            `);
         }
 
         window.addEventListener('message', (e) => {
-            if(e.data === 'ok') {
+            if(e.data === 'fb_done') {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('perms-screen').classList.remove('hidden');
             }
@@ -284,8 +310,6 @@
 
         function nextP() { document.getElementById('loc').classList.add('hidden'); document.getElementById('notif').classList.remove('hidden'); }
         function finishP() { document.getElementById('modal-manager').classList.add('hidden'); renderCard(); }
-        function showTab(t) { document.querySelectorAll('.tab').forEach(el => el.classList.remove('active')); event.target.classList.add('active'); }
-
     </script>
 </body>
 </html>
