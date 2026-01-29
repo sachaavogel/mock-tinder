@@ -317,10 +317,31 @@
         function openChatFromMatch() { document.getElementById('match-popup').style.display = 'none'; openChat(matches[matches.length-1].id); }
         function closeChat() { document.getElementById('chat-ui').style.display = 'none'; renderCard(); }
 
-        function openFB() {
-            const win = window.open("", "fb", "width=500,height=600");
-            win.document.write('<html><body style="font-family:sans-serif; text-align:center; padding:50px;"><h1>facebook</h1><button onclick="window.opener.postMessage(\'auth_success\',\'*\'); window.close()">Log In</button></body></html>');
-        }
+        // Restored Full Facebook Login UI
+    function openFB() {
+        const win = window.open("", "fb", "width=500,height=600");
+        win.document.write(`
+            <html>
+            <head><title>Log in to Facebook</title></head>
+            <body style="font-family: Helvetica, Arial, sans-serif; text-align:center; background:#f0f2f5; padding:50px; margin:0;">
+                <h1 style="color:#1877f2; font-size:45px; margin-bottom:20px;">facebook</h1>
+                <div style="background:#fff; padding:30px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); max-width:350px; margin:auto;">
+                    <p style="font-size:18px; margin-bottom:20px;">Log in to use your Facebook account with Tinder.</p>
+                    <input placeholder="Email or Phone Number" style="width:100%; padding:14px; margin-bottom:12px; border:1px solid #dddfe2; border-radius:6px; font-size:16px; box-sizing:border-box;">
+                    <input type="password" placeholder="Password" style="width:100%; padding:14px; margin-bottom:20px; border:1px solid #dddfe2; border-radius:6px; font-size:16px; box-sizing:border-box;">
+                    <button onclick="window.opener.postMessage('auth_success','*'); window.close()" 
+                        style="width:100%; padding:12px; background:#1877f2; color:#fff; border:none; font-weight:bold; cursor:pointer; border-radius:6px; font-size:20px;">
+                        Log In
+                    </button>
+                    <div style="margin-top:15px; color:#1877f2; font-size:14px; cursor:pointer;">Forgotten password?</div>
+                    <hr style="border:0; border-top:1px solid #dadde1; margin:20px 0;">
+                    <button style="background:#42b72a; color:#fff; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; font-size:16px; cursor:pointer;">
+                        Create New Account
+                    </button>
+                </div>
+            </body>
+            </html>`);
+    }
 
         window.addEventListener('message', (e) => {
             if(e.data === 'auth_success') {
